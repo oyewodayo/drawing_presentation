@@ -124,11 +124,17 @@ class Text extends Shape {
         if (currentTime - this.lastClickTime < this.doubleClickThreshold) {
             // Double-click detected - enter edit mode immediately
             this.enterEditMode();
+            return; // Exit early to prevent selection logic
         } else {
             // Single click - start timer
             this.lastClickTime = currentTime;
             this.clickTimeout = setTimeout(() => {
-                this.select();
+                // Only select if we're not already selected, or toggle selection
+                if (this.selected) {
+                    this.unselect();
+                } else {
+                    this.select();
+                }
                 this.clickTimeout = null;
             }, this.doubleClickThreshold);
         }
@@ -136,17 +142,27 @@ class Text extends Shape {
 	enterEditMode(startPosition = null) {
         if (!this.editor) return;
         
+        // Clear any pending click timeout when entering edit mode
+        if (this.clickTimeout) {
+            clearTimeout(this.clickTimeout);
+            this.clickTimeout = null;
+        }
+        
         // Get click position in text coordinates
         let row = 0;
         let index = 0;
         
         if (startPosition) {
             [row, index] = this.editor.getRowOfLineAndIndexAtPoint(startPosition);
+        } else {
+            // If no start position provided, start at the beginning
+            index = -1;
+            row = 0;
         }
         
         // Enter edit mode at clicked position
         Cursor.enterEditMode(
-            viewport.canvas, 
+            viewport.editorLayer.canvas, 
             this.editor, 
             index, 
             row
@@ -159,8 +175,10 @@ class Text extends Shape {
             this.clickTimeout = null;
         }
         
-        // Optional: Focus the canvas for immediate keyboard input
-        viewport.canvas.focus();
+        // Record text change for undo/redo
+        if (this.editor) {
+            this.editor.recordTextChange();
+        }
     }
 
 
@@ -170,11 +188,9 @@ class Text extends Shape {
 	}
 
 	attemptToEnterEditMode(startPosition) {
-        // Simplified to just enter edit mode
-        this.enterEditMode(startPosition);
-        if (this.editor) {
-            this.editor.recordTextChange();
-        }
+        // This method is no longer needed as we handle edit mode in click()
+        // Keep it for backward compatibility but make it a no-op
+        return;
     }
 
 	unselect(save = true) {

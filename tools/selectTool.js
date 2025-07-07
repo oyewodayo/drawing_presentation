@@ -48,9 +48,6 @@ class SelectTool extends GenericTool {
 		if (shape) {
 			if (!isClickingSelectedShape) {
 				shape.click();
-				if (shape.isText()) {
-					shape.attemptToEnterEditMode(startPosition);
-				}
 			}
 			const selectedShapes = viewport.getSelectedShapes();
 			const oldCenters = selectedShapes.map((s) => s.center);
@@ -101,11 +98,10 @@ class SelectTool extends GenericTool {
 					}
 				}
 
-				if (isClickingSelectedShape && !isDragging) {
+				// Handle click on already selected shape (for double-click edit mode)
+				if (isClickingSelectedShape && !isDragging && shape.isText()) {
+					// Let the text shape handle its own click logic for edit mode
 					shape.click();
-					if (shape.isText()) {
-						shape.attemptToEnterEditMode(startPosition);
-					}
 				}
 			};
 
