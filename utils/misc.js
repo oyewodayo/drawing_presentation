@@ -108,7 +108,7 @@ function rotateCanvas(ctx, center, rotation) {
 class TimeSharer {
 	static opRecords = {};
 
-	static run(key, operation, opInterval = 500) {
+	static run(key, operation, opInterval = 16) { // ~60fps for drawing operations
 		if (TimeSharer.opRecords[key]) {
 			let opRecord = TimeSharer.opRecords[key];
 			if (Date.now() - opRecord.opTime < opRecord.opInterval) {

@@ -119,6 +119,19 @@ class Viewport extends EventTarget {
 	}
 
 	drawShapes(shapes = []) {
+		// Use requestAnimationFrame for smoother drawing during path creation
+		if (this._drawPending) {
+			return;
+		}
+		
+		this._drawPending = true;
+		requestAnimationFrame(() => {
+			this._performDraw(shapes);
+			this._drawPending = false;
+		});
+	}
+
+	_performDraw(shapes = []) {
 		this.stageLayer.drawItems([]);
 		this.layers.forEach((l) => l.drawItems(l.shapes.concat(shapes)));
 		this.overlayLayer.drawItems(this.gizmos);

@@ -12,10 +12,16 @@ class PathGeneratedShapeTool extends ShapeTool {
 			propertiesPanel.getValues()
 		);
 
+		// Store the original ID to maintain consistency during drawing
+		const shapeId = pathGeneratedShape.id;
+
 		const moveCallback = function (e) {
 			const mousePosition = viewport.getAdjustedPosition(
 				Vector.fromOffsets(e)
 			);
+			
+			// Preserve the shape ID to avoid flickering
+			pathGeneratedShape.id = shapeId;
 			pathGeneratedShape.addPoint(mousePosition);
 
 			viewport.drawShapes([pathGeneratedShape]);

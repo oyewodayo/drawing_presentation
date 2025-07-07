@@ -35,7 +35,11 @@ class Path extends Shape {
 	}
 
 	addPoint(point) {
-		this.points.push(point);
+		// Only add point if it's different enough from the last point to reduce redundant points
+		const lastPoint = this.points[this.points.length - 1];
+		if (!lastPoint || Vector.distance(lastPoint, point) > 2) {
+			this.points.push(point);
+		}
 	}
 
 	getPoints() {
