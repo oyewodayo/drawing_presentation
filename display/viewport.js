@@ -8,9 +8,7 @@ class Viewport extends EventTarget {
 		this.stageProperties.left = -this.stageProperties.width / 2;
 		this.stageProperties.top = -this.stageProperties.height / 2;
 
-		this.canvasWidth = showHitRegions
-			? window.innerWidth / 2
-			: window.innerWidth;
+		this.canvasWidth = window.innerWidth;
 		this.canvasHeight = window.innerHeight;
 
 		this.zeroCenterOffset = new Vector(
