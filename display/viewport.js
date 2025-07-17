@@ -121,7 +121,7 @@ class Viewport extends EventTarget {
 		if (this._drawPending) {
 			return;
 		}
-		
+
 		this._drawPending = true;
 		requestAnimationFrame(() => {
 			this._performDraw(shapes);
