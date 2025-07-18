@@ -7,6 +7,7 @@
 	--border-radius: 3px;
 	--outline-width: calc(1rem / 16 * 3);
 	--menu-height: 20px;
+	--menu-zero: 0px;
 
 	--bg-color: #f7f7f7;
 	--bg-panel: #f7f7f7;
@@ -22,7 +23,7 @@
 	--icon-filters: grayscale(100%) contrast(10);
 
 	--toolbar-width: 35px;
-	--input-width: 110px;
+	--input-width: 120px;
 	--input-large-width: 60px;
 	--input-medium-width: 40px;
 	--input-small-width: 20px;
@@ -89,7 +90,7 @@ hr {
 input,
 textarea,
 select {
-	background-color: var(--bg-input);
+	background-color: var(--bg-color);
 	color: var(--text-color);
 	border: var(--border-width) solid var(--bg-input);
 	width: var(--input-width);
@@ -127,7 +128,7 @@ textarea {
 
 .panel {
 	position: absolute;
-	top: var(--menu-height);
+	top: var(--menu-zero);
 	background-color: var(--bg-panel);
 	height: 100%;
 }
@@ -137,7 +138,7 @@ textarea {
 }
 
 .panel-head {
-	background-color: rgba(0, 0, 0, 0.25);
+	background-color: #efefef;
 	cursor: pointer;
 	border-bottom-width: var(--border-width);
 	padding: 8px;
@@ -153,7 +154,7 @@ textarea {
 	background-color: var(--bg-panel);
 }
 
-.panel-body > div > div {
+.panel-body>div>div {
 	display: flex;
 	flex-direction: column;
 }
@@ -173,12 +174,12 @@ textarea {
 	padding-bottom: var(--gap);
 }
 
-.panel-body > .panel-section:not([hidden]) {
+.panel-body>.panel-section:not([hidden]) {
 	border-bottom-width: var(--gap);
 	border-radius: 0;
 }
 
-.panel-section > div {
+.panel-section>div {
 	display: flex;
 }
 
@@ -218,7 +219,7 @@ textarea {
 	align-items: center;
 }
 
-.panel-section > div > label {
+.panel-section>div>label {
 	min-width: 4rem;
 	padding: var(--gap);
 }
@@ -247,7 +248,7 @@ textarea {
 #propertiesHolder {
 	width: 190px;
 	right: 0;
-	background-color: var(--bg-canvas);
+	/* background-color: var(--bg-canvas); */
 
 	scrollbar-width: thin;
 	overflow-y: auto;
@@ -296,6 +297,7 @@ textarea {
 	0% {
 		transform: translateX(100%);
 	}
+
 	100% {
 		transform: translateX(-100%);
 	}
@@ -331,9 +333,12 @@ textarea {
 }
 
 input[type="checkbox"] {
-	-webkit-appearance: none; /* For WebKit browsers */
-	appearance: none; /* Standard syntax */
-	background-color: #fff; /* Unchecked background color */
+	-webkit-appearance: none;
+	/* For WebKit browsers */
+	appearance: none;
+	/* Standard syntax */
+	background-color: #fff;
+	/* Unchecked background color */
 	width: var(--toolbar-width);
 	height: var(--toolbar-width);
 	cursor: pointer;
@@ -357,43 +362,33 @@ input[type="checkbox"]:checked::before {
 
 .colorInput {
 	position: relative;
-	background-image: linear-gradient(
-			45deg,
+	background-image: linear-gradient(45deg,
 			var(--transparent-grid-background) 25%,
-			transparent 25%
-		),
-		linear-gradient(
-			-45deg,
+			transparent 25%),
+		linear-gradient(-45deg,
 			var(--transparent-grid-background) 25%,
-			transparent 25%
-		),
-		linear-gradient(
-			45deg,
+			transparent 25%),
+		linear-gradient(45deg,
 			transparent 75%,
-			var(--transparent-grid-background) 75%
-		),
-		linear-gradient(
-			-45deg,
+			var(--transparent-grid-background) 75%),
+		linear-gradient(-45deg,
 			transparent 75%,
-			var(--transparent-grid-background) 75%
-		);
+			var(--transparent-grid-background) 75%);
 	background-size: 10px 10px;
 	background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
 }
 
 .colorInput.noColor {
-	background: linear-gradient(
-		to top right,
-		white 0%,
-		white 48%,
-		red 48%,
-		red 52%,
-		white 52%,
-		white 100%
-	);
+	background: linear-gradient(to top right,
+			white 0%,
+			white 48%,
+			red 48%,
+			red 52%,
+			white 52%,
+			white 100%);
 }
 
-.colorInput > div {
+.colorInput>div {
 	width: 100%;
 	height: 100%;
 	position: absolute;

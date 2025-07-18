@@ -92,14 +92,14 @@ class PropertiesSection extends PanelSection {
 		// Add stage background color control
 		const stageColorDiv = createDOMElement("div");
 		stageColorDiv.appendChild(createDOMElement("label", {}, "Stage Background"));
-		
+
 		this.stageBackgroundColorInput = new ColorInput({
 			id: "stageBackgroundColor",
 			defaultColor: "#ffffff",
 			onChange: this.changeStageBackgroundColor.bind(this),
 		});
 		stageColorDiv.appendChild(this.stageBackgroundColorInput.getDomNode());
-		
+
 		// Add transparent button
 		stageColorDiv.appendChild(
 			createButtonWithIcon({
@@ -110,7 +110,7 @@ class PropertiesSection extends PanelSection {
 				iconName: "reset_colors", // Using existing icon
 			})
 		);
-		
+
 		holderDiv.appendChild(stageColorDiv);
 	}
 
@@ -125,7 +125,7 @@ class PropertiesSection extends PanelSection {
 		widthInput.placeholder = "";
 		heightInput.placeholder = "";
 		rotationInput.placeholder = "";
-		
+
 		// Reset stage background color
 		if (this.stageBackgroundColorInput) {
 			this.stageBackgroundColorInput.setColor(STAGE_PROPERTIES.backgroundColor || "#ffffff");
