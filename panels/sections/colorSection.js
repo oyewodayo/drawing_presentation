@@ -71,30 +71,30 @@ class ColorSection extends PanelSection {
 		otherControls.appendChild(
 			createDOMElement("input", {
 				id: "strokeWidth",
-				max: "30",
+				max: "50",
 				min: "1",
-				step: "1",
+				step: "0.5",
 				onchange: (e) => this.changeStrokeWidth(e.currentTarget.value),
 				oninput: (e) =>
 					this.changeStrokeWidth(e.currentTarget.value, false),
 				title: "Stroke Width",
 				type: "range",
-				value: "5",
+				value: "3",
 				style: "margin-left: 20px",
 			})
 		);
 		otherControls.appendChild(
 			createDOMElement("input", {
 				id: "strokeWidthNumber",
-				max: "30",
+				max: "50",
 				min: "1",
-				step: "1",
+				step: "0.5",
 				onchange: (e) => this.changeStrokeWidth(e.currentTarget.value),
 				oninput: (e) =>
 					this.changeStrokeWidth(e.currentTarget.value, false),
 				title: "Stroke Width",
 				type: "number",
-				value: "5",
+				value: "3",
 			})
 		);
 	}

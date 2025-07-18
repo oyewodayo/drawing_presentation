@@ -25,24 +25,27 @@ class PathTool extends PathGeneratedShapeTool {
 
 		// Store the original ID to maintain consistency during drawing
 		const shapeId = pathGeneratedShape.id;
+		let lastUpdateTime = 0;
+		const updateInterval = 8; // ~120fps for ultra-smooth drawing
 
 		const moveCallback = (e) => {
 			const now = Date.now();
 			
-			// Throttle drawing to improve performance
-			if (now - this._lastDrawTime < this._drawThrottle) {
+			// High-frequency updates for smooth drawing
+			if (now - lastUpdateTime < updateInterval) {
 				return;
 			}
-			this._lastDrawTime = now;
+			lastUpdateTime = now;
 
 			const mousePosition = viewport.getAdjustedPosition(
 				Vector.fromOffsets(e)
 			);
 			
-			// Preserve the shape ID to avoid flickering
+			// Add point and preserve shape ID
 			pathGeneratedShape.id = shapeId;
 			pathGeneratedShape.addPoint(mousePosition);
 
+			// Use optimized drawing for real-time feedback
 			viewport.drawShapes([pathGeneratedShape]);
 		};
 
@@ -53,6 +56,10 @@ class PathTool extends PathGeneratedShapeTool {
 			viewport.getStageCanvas().removeEventListener("pointerup", upCallback);
 
 			pathGeneratedShape.recenter();
+			
+			// Final smoothing pass after drawing is complete
+			pathGeneratedShape.smoothPath();
+			
 			if (
 				pathGeneratedShape.size.width > 0 &&
 				pathGeneratedShape.size.height > 0
@@ -60,6 +67,7 @@ class PathTool extends PathGeneratedShapeTool {
 				viewport.addShapes(pathGeneratedShape);
 			}
 		};
+		
 		viewport.getStageCanvas().addEventListener("pointermove", moveCallback);
 		viewport.getStageCanvas().addEventListener("pointerup", upCallback);
 	}
