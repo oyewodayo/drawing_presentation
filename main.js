@@ -5,6 +5,7 @@ const RECTANGULAR_SELECTION_MODE = "intersection"; // or "containment"
 const STAGE_PROPERTIES = {
 	width: window.innerWidth,
 	height: window.innerHeight,
+	backgroundColor: "#ffffff", // Default white background
 };
 
 const viewport = new Viewport(canvasHolder, STAGE_PROPERTIES, SHOW_HIT_REGIONS);
@@ -20,6 +21,8 @@ window.addEventListener('resize', () => {
 	// Update stage properties
 	STAGE_PROPERTIES.width = newWidth;
 	STAGE_PROPERTIES.height = newHeight;
+	STAGE_PROPERTIES.left = -newWidth / 2;
+	STAGE_PROPERTIES.top = -newHeight / 2;
 	
 	// Resize the stage
 	resizeStage(newWidth, newHeight);

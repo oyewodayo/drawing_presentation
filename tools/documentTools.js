@@ -108,6 +108,12 @@ class DocumentTools {
 		tmpCanvas.height = stageProperties.height;
 		const tmpCtx = tmpCanvas.getContext("2d");
 
+		// Fill background if not transparent
+		if (stageProperties.backgroundColor && stageProperties.backgroundColor !== "transparent") {
+			tmpCtx.fillStyle = stageProperties.backgroundColor;
+			tmpCtx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+		}
+
 		tmpCtx.translate(-stageProperties.left, -stageProperties.top);
 
 		const allShapes = [];
