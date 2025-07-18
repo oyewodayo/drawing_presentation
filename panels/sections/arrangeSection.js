@@ -17,7 +17,7 @@ class ArrangeSection extends PanelSection {
 				id: "sendBackwardBtn",
 				onclick: TransformTools.sendBackward,
 				title: "Send Backward",
-				iconName: "bwd",
+				iconName: "backward",
 			})
 		);
 		holderDiv.appendChild(
@@ -25,7 +25,7 @@ class ArrangeSection extends PanelSection {
 				id: "bringForwardBtn",
 				onclick: TransformTools.bringForward,
 				title: "Bring Forward",
-				iconName: "fwd",
+				iconName: "forward",
 			})
 		);
 		holderDiv.appendChild(

@@ -51,7 +51,7 @@ function createInputWithLabel(labelText, attributes) {
 function createButtonWithIcon(attributes) {
 	const button = createDOMElement("button", attributes);
 	const image = new Image();
-	image.src = `drawings/icons/${attributes.iconName}.png`;
+	image.src = `drawings/icons/${attributes.iconName}.svg`;
 	image.classList.add("icon");
 	button.appendChild(image);
 	return button;
@@ -64,7 +64,7 @@ function createRadioWithImage(iconName, labelText, attributes) {
 		class: "radio-button-button",
 	});
 	const image = new Image();
-	image.src = `drawings/icons/${iconName.toLowerCase()}.png`;
+	image.src = `drawings/icons/${iconName.toLowerCase()}.svg`;
 	image.classList.add("icon");
 	image.title = attributes.title || labelText;
 	label.appendChild(image);

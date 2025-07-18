@@ -57,7 +57,7 @@ class DocumentTools {
 	static load() {
 		const input = document.createElement("input");
 		input.type = "file";
-		input.accept = ".json, .png, .jpg";
+		input.accept = ".json, .png, .jpg, .svg";
 		input.onchange = (e) => {
 			const file = e.target.files[0];
 			const reader = new FileReader();
@@ -79,7 +79,7 @@ class DocumentTools {
 
 			if (extension === "json") {
 				reader.readAsText(file);
-			} else if (extension === "png" || extension === "jpg") {
+			} else if (extension === "png" || extension === "jpg" || extension === "svg") {
 				reader.readAsDataURL(file);
 			}
 		};

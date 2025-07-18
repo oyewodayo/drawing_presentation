@@ -326,6 +326,7 @@ textarea {
 
 .icon {
 	width: 100%;
+	padding: 4px;
 	filter: var(--icon-filters);
 }
 
