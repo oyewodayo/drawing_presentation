@@ -5,7 +5,8 @@ class Path extends Shape {
 		this.rawPoints = [startPoint]; // Store original points for smoothing
 		this.smoothedPoints = [startPoint]; // Store smoothed points
 		this.smoothingFactor = 0.3; // Smoothing intensity (0-1)
-		this.minDistance = 1; // Minimum distance between points
+		this.minDistance = 2; // Increased minimum distance to reduce noise
+		this.isDrawing = false; // Flag to control when to apply smoothing
 	}
 
 	static load(data) {
@@ -41,13 +42,30 @@ class Path extends Shape {
 		};
 	}
 
+	// Start drawing mode (minimal smoothing during drawing)
+	startDrawing() {
+		this.isDrawing = true;
+	}
+
+	// End drawing mode (apply final smoothing)
+	endDrawing() {
+		this.isDrawing = false;
+		this.smoothPath();
+	}
+
 	addPoint(point) {
 		const lastRawPoint = this.rawPoints[this.rawPoints.length - 1];
 		
 		// Only add point if it's far enough from the last point
 		if (!lastRawPoint || Vector.distance(lastRawPoint, point) > this.minDistance) {
 			this.rawPoints.push(point);
-			this.smoothPath();
+			
+			// During drawing, use minimal smoothing for real-time feedback
+			if (this.isDrawing) {
+				this.points = [...this.rawPoints]; // Use raw points during drawing
+			} else {
+				this.smoothPath();
+			}
 		}
 	}
 
@@ -58,11 +76,34 @@ class Path extends Shape {
 			return;
 		}
 
-		// Apply Catmull-Rom spline smoothing
-		this.smoothedPoints = this.applyCatmullRomSmoothing(this.rawPoints);
+		// Apply lighter smoothing to preserve shape integrity
+		this.smoothedPoints = this.applyLightSmoothing(this.rawPoints);
 		this.points = this.smoothedPoints;
 	}
 
+	applyLightSmoothing(points) {
+		if (points.length < 3) return points;
+
+		const smoothed = [points[0]]; // Keep first point exactly
+		
+		// Use simple averaging for more predictable results
+		for (let i = 1; i < points.length - 1; i++) {
+			const prev = points[i - 1];
+			const current = points[i];
+			const next = points[i + 1];
+			
+			// Light smoothing using weighted average
+			const smoothX = prev.x * 0.25 + current.x * 0.5 + next.x * 0.25;
+			const smoothY = prev.y * 0.25 + current.y * 0.5 + next.y * 0.25;
+			
+			smoothed.push(new Vector(smoothX, smoothY));
+		}
+
+		smoothed.push(points[points.length - 1]); // Keep last point exactly
+		return smoothed;
+	}
+
+	// Keep the Catmull-Rom method as an alternative for when you need more smoothing
 	applyCatmullRomSmoothing(points) {
 		if (points.length < 3) return points;
 
@@ -74,8 +115,8 @@ class Path extends Shape {
 			const p2 = points[i + 1] || points[i];
 			const p3 = points[i + 2] || points[i + 1];
 
-			// Generate intermediate points using Catmull-Rom spline
-			const segments = 4; // Number of segments between each point
+			// Reduced segments to prevent over-smoothing
+			const segments = 2; // Reduced from 4
 			for (let t = 0; t < segments; t++) {
 				const u = t / segments;
 				const smoothPoint = this.catmullRomInterpolate(p0, p1, p2, p3, u);
@@ -200,7 +241,12 @@ class Path extends Shape {
 		if (hitRegion) {
 			this.applyHitRegionStyles(ctx);
 		} else {
-			this.applyStyles(ctx);
+			// Force stroke-only rendering for paths
+			ctx.strokeStyle = this.options.strokeColor;
+			ctx.lineWidth = this.options.strokeWidth;
+			ctx.lineCap = this.options.lineCap;
+			ctx.lineJoin = this.options.lineJoin;
+			ctx.stroke(); // Only stroke, never fill
 		}
 		
 		ctx.restore();

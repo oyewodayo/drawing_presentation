@@ -95,6 +95,8 @@ select {
 	width: var(--input-width);
 }
 
+input{background-color: #ffffff; width: 120px; height: 25px;}
+
 input[type="color"],
 input[type="checkbox"] {
 	width: var(--toolbar-width);
@@ -127,17 +129,19 @@ textarea {
 
 .panel {
 	position: absolute;
-	top: var(--menu-height);
 	background-color: var(--bg-panel);
-	height: 100%;
+	/* height: 100%; */
 }
+
+
+
 
 .panel:hover {
 	-webkit-mask-position: left top;
 }
 
 .panel-head {
-	background-color: rgba(0, 0, 0, 0.25);
+	background-color: var(--bg-color);
 	cursor: pointer;
 	border-bottom-width: var(--border-width);
 	padding: 8px;
@@ -238,17 +242,26 @@ textarea {
 }
 
 #toolsHolder {
-	width: var(--toolbar-width);
-	display: inline-flex;
-	flex-flow: column wrap;
-	overflow: hidden;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: var(--toolbar-width);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
 
 #propertiesHolder {
 	width: 190px;
 	right: 0;
-	background-color: var(--bg-canvas);
-
+	top: 50%;
+	transform: translateY(-50%);
+	display: flex;
+  	flex-direction: column;
+  	align-items: center;
+	/* background-color: var(--bg-canvas); */
 	scrollbar-width: thin;
 	overflow-y: auto;
 }
