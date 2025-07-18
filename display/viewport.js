@@ -231,7 +231,13 @@ class Viewport extends EventTarget {
 		this.layers.forEach((l) => {
 			l.stageProperties.width = newWidth;
 			l.stageProperties.height = newHeight;
+			l.stageProperties.left = -newWidth / 2;
+			l.stageProperties.top = -newHeight / 2;
 		});
+		this.stageLayer.stageProperties.width = newWidth;
+		this.stageLayer.stageProperties.height = newHeight;
+		this.stageLayer.stageProperties.left = -newWidth / 2;
+		this.stageLayer.stageProperties.top = -newHeight / 2;
 	}
 
 	#handleChanges({ detail }) {

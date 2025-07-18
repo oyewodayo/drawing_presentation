@@ -32,6 +32,12 @@ class PropertiesSection extends PanelSection {
 				inputId: "rotationInput",
 				extractor: this.getRotation.bind(this),
 			},
+			{
+				key: "stageBackgroundColor",
+				type: "color",
+				inputId: "stageBackgroundColor",
+				extractor: this.getStageBackgroundColor.bind(this),
+			},
 		];
 	}
 
@@ -82,6 +88,30 @@ class PropertiesSection extends PanelSection {
 				id: "constrainDimensions",
 			})
 		);
+
+		// Add stage background color control
+		const stageColorDiv = createDOMElement("div");
+		stageColorDiv.appendChild(createDOMElement("label", {}, "Stage Background"));
+		
+		this.stageBackgroundColorInput = new ColorInput({
+			id: "stageBackgroundColor",
+			defaultColor: "#ffffff",
+			onChange: this.changeStageBackgroundColor.bind(this),
+		});
+		stageColorDiv.appendChild(this.stageBackgroundColorInput.getDomNode());
+		
+		// Add transparent button
+		stageColorDiv.appendChild(
+			createButtonWithIcon({
+				id: "transparentStageBtn",
+				title: "Transparent Background",
+				class: "tool-button",
+				onclick: this.setTransparentBackground.bind(this),
+				iconName: "reset_colors", // Using existing icon
+			})
+		);
+		
+		holderDiv.appendChild(stageColorDiv);
 	}
 
 	reset() {
@@ -95,6 +125,11 @@ class PropertiesSection extends PanelSection {
 		widthInput.placeholder = "";
 		heightInput.placeholder = "";
 		rotationInput.placeholder = "";
+		
+		// Reset stage background color
+		if (this.stageBackgroundColorInput) {
+			this.stageBackgroundColorInput.setColor(STAGE_PROPERTIES.backgroundColor || "#ffffff");
+		}
 	}
 
 	changeX(value, save = true) {
@@ -229,5 +264,30 @@ class PropertiesSection extends PanelSection {
 
 	getRotation(shape) {
 		return shape.rotation * (180 / Math.PI);
+	}
+
+	changeStageBackgroundColor(color) {
+		STAGE_PROPERTIES.backgroundColor = color;
+		// Update all layers with the new background color
+		viewport.layers.forEach(layer => {
+			layer.stageProperties.backgroundColor = color;
+		});
+		viewport.stageLayer.stageProperties.backgroundColor = color;
+		viewport.drawShapes();
+	}
+
+	setTransparentBackground() {
+		STAGE_PROPERTIES.backgroundColor = "transparent";
+		// Update all layers with transparent background
+		viewport.layers.forEach(layer => {
+			layer.stageProperties.backgroundColor = "transparent";
+		});
+		viewport.stageLayer.stageProperties.backgroundColor = "transparent";
+		this.stageBackgroundColorInput.setColor(null);
+		viewport.drawShapes();
+	}
+
+	getStageBackgroundColor(shape) {
+		return STAGE_PROPERTIES.backgroundColor;
 	}
 }

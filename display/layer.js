@@ -217,9 +217,12 @@ class Layer {
 	#drawStage() {
 		this.ctx.save();
 
-		this.ctx.fillStyle = "white";
-		const { left, top, width, height } = this.stageProperties;
-		this.ctx.fillRect(left, top, width, height);
+		// Only fill if backgroundColor is not transparent
+		if (this.stageProperties.backgroundColor && this.stageProperties.backgroundColor !== "transparent") {
+			this.ctx.fillStyle = this.stageProperties.backgroundColor;
+			const { left, top, width, height } = this.stageProperties;
+			this.ctx.fillRect(left, top, width, height);
+		}
 
 		this.ctx.restore();
 	}
