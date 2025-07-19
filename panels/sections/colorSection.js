@@ -163,6 +163,18 @@ class ColorSection extends PanelSection {
 		this.changeStroke(this.strokeColorInput.getColor());
 	}
 
+	getValues() {
+		return {
+			fillColor: this.sections["colors"].fillColorInput.getColor(),
+			strokeColor: this.sections["colors"].strokeColorInput.getColor(),
+			fill: false, // Paths should never have fill by default
+			stroke: this.sections["colors"].strokeColorInput.getColor() != null,
+			strokeWidth: Number(strokeWidth.value),
+			lineCap: "round",
+			lineJoin: "round",
+		};
+	}
+
 	getFillColor(shape) {
 		return shape.options.fillColor;
 	}
