@@ -136,6 +136,11 @@ class Viewport extends EventTarget {
 
 		this.hitTestLayer.drawItems(this.selectedLayer.shapes.concat(shapes));
 		this.hitTestLayer.drawItems(this.gizmos, false);
+		
+		// Ensure temporary shapes don't persist
+		if (shapes.length === 0) {
+			this.overlayLayer.clearCanvas();
+		}
 	}
 
 	addLayer(type = Layer.TYPES.NORMAL) {

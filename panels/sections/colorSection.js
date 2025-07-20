@@ -167,7 +167,7 @@ class ColorSection extends PanelSection {
 		return {
 			fillColor: this.sections["colors"].fillColorInput.getColor(),
 			strokeColor: this.sections["colors"].strokeColorInput.getColor(),
-			fill: false, // Paths should never have fill by default
+			fill: this.fillColorInput.getColor() != null,
 			stroke: this.sections["colors"].strokeColorInput.getColor() != null,
 			strokeWidth: Number(strokeWidth.value),
 			lineCap: "round",

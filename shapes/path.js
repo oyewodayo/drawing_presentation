@@ -200,7 +200,12 @@ class Path extends Shape {
 		if (hitRegion) {
 			this.applyHitRegionStyles(ctx);
 		} else {
-			this.applyStyles(ctx);
+			// Force stroke-only rendering for paths
+			ctx.strokeStyle = this.options.strokeColor;
+			ctx.lineWidth = this.options.strokeWidth;
+			ctx.lineCap = this.options.lineCap;
+			ctx.lineJoin = this.options.lineJoin;
+			ctx.stroke(); // Only stroke, never fill
 		}
 		
 		ctx.restore();
