@@ -3,7 +3,7 @@ class PathTool extends PathGeneratedShapeTool {
 		super();
 		this._shape = Path;
 		this._lastDrawTime = 0;
-		this._drawThrottle = 16; // ~60fps
+		this._drawThrottle = 10; // ~100fps for responsive feel
 	}
 
 	getShortcut() {
@@ -34,8 +34,9 @@ class PathTool extends PathGeneratedShapeTool {
 		// Store the original ID to maintain consistency during drawing
 		const shapeId = pathGeneratedShape.id;
 		let lastUpdateTime = 0;
-		const updateInterval = 8; // ~120fps for ultra-smooth drawing
+		const updateInterval = 10; // ~100fps for smooth, responsive drawing
 		let isDrawing = true;
+		pathGeneratedShape.isDrawing = true;
 
 		const moveCallback = (e) => {
 			if (!isDrawing) return;
@@ -68,7 +69,8 @@ class PathTool extends PathGeneratedShapeTool {
 
 		const upCallback = (e) => {
 			isDrawing = false;
-			
+			pathGeneratedShape.isDrawing = false;
+
 			viewport
 				.getStageCanvas()
 				.removeEventListener("pointermove", moveCallback);
@@ -78,21 +80,19 @@ class PathTool extends PathGeneratedShapeTool {
 
 			// IMPORTANT: Do final processing in the correct order
 			if (pathGeneratedShape.rawPoints.length > 1) {
-				// 1. First, do final smoothing on raw points
+				// 1. Apply final smoothing pass for clean, natural curves
 				pathGeneratedShape.smoothPath();
-				
-				// 2. Then recenter the shape
+
+				// 2. Recenter the shape for proper positioning
 				pathGeneratedShape.recenter();
-				
-				// 3. Check if the path has meaningful size
-				if (pathGeneratedShape.size.width > 0.1 && pathGeneratedShape.size.height > 0.1) {
+
+				// 3. Only add if the path has meaningful size
+				if (pathGeneratedShape.size.width > 0.5 && pathGeneratedShape.size.height > 0.5) {
 					viewport.addShapes(pathGeneratedShape);
 				} else {
-					// Clear any temporary drawing if path is too small
 					viewport.drawShapes();
 				}
 			} else {
-				// Clear any temporary drawing if no valid path was created
 				viewport.drawShapes();
 			}
 		};
