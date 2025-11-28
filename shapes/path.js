@@ -4,9 +4,10 @@ class Path extends Shape {
 		this.points = [startPoint];
 		this.rawPoints = [startPoint]; // Store original points for smoothing
 		this.smoothedPoints = [startPoint]; // Store smoothed points
-		this.smoothingFactor = 0.3; // Smoothing intensity (0-1)
-		this.minDistance = 2; // Increased minimum distance to reduce noise
+		this.smoothingFactor = 0.2; // Light smoothing for natural look
+		this.minDistance = 2.5; // Optimal distance between points
 		this.isDrawing = false; // Flag to control when to apply smoothing
+		this.velocitySmoothing = 0.3; // For velocity-based smoothing
 	}
 
 	static load(data) {
@@ -55,16 +56,16 @@ class Path extends Shape {
 
 	addPoint(point) {
 		const lastRawPoint = this.rawPoints[this.rawPoints.length - 1];
-		
+
 		// Only add point if it's far enough from the last point
 		if (!lastRawPoint || Vector.distance(lastRawPoint, point) > this.minDistance) {
 			this.rawPoints.push(point);
-			
-			// During drawing, use minimal smoothing for real-time feedback
-			if (this.isDrawing) {
-				this.points = [...this.rawPoints]; // Use raw points during drawing
+
+			// Apply real-time smoothing for immediate feedback
+			if (this.rawPoints.length >= 3) {
+				this.points = this.applyRealTimeSmoothing(this.rawPoints);
 			} else {
-				this.smoothPath();
+				this.points = [...this.rawPoints];
 			}
 		}
 	}
@@ -76,30 +77,69 @@ class Path extends Shape {
 			return;
 		}
 
-		// Apply lighter smoothing to preserve shape integrity
-		this.smoothedPoints = this.applyLightSmoothing(this.rawPoints);
+		// Apply final smoothing with slightly more refinement
+		this.smoothedPoints = this.applyFinalSmoothing(this.rawPoints);
 		this.points = this.smoothedPoints;
 	}
 
-	applyLightSmoothing(points) {
+	applyRealTimeSmoothing(points) {
 		if (points.length < 3) return points;
 
-		const smoothed = [points[0]]; // Keep first point exactly
-		
-		// Use simple averaging for more predictable results
+		const smoothed = [points[0]];
+
+		// Very light smoothing during drawing for responsive feel
 		for (let i = 1; i < points.length - 1; i++) {
 			const prev = points[i - 1];
 			const current = points[i];
 			const next = points[i + 1];
-			
-			// Light smoothing using weighted average
-			const smoothX = prev.x * 0.25 + current.x * 0.5 + next.x * 0.25;
-			const smoothY = prev.y * 0.25 + current.y * 0.5 + next.y * 0.25;
-			
+
+			// Minimal smoothing: 15% influence from neighbors
+			const smoothX = prev.x * 0.15 + current.x * 0.7 + next.x * 0.15;
+			const smoothY = prev.y * 0.15 + current.y * 0.7 + next.y * 0.15;
+
 			smoothed.push(new Vector(smoothX, smoothY));
 		}
 
-		smoothed.push(points[points.length - 1]); // Keep last point exactly
+		smoothed.push(points[points.length - 1]);
+		return smoothed;
+	}
+
+	applyFinalSmoothing(points) {
+		if (points.length < 3) return points;
+
+		const smoothed = [points[0]];
+
+		// Two-pass smoothing for natural human-like curves
+		let firstPass = [];
+		for (let i = 0; i < points.length; i++) {
+			if (i === 0 || i === points.length - 1) {
+				firstPass.push(points[i]);
+			} else {
+				const prev = points[i - 1];
+				const current = points[i];
+				const next = points[i + 1];
+
+				// First pass: light smoothing
+				const smoothX = prev.x * 0.2 + current.x * 0.6 + next.x * 0.2;
+				const smoothY = prev.y * 0.2 + current.y * 0.6 + next.y * 0.2;
+
+				firstPass.push(new Vector(smoothX, smoothY));
+			}
+		}
+
+		// Second pass: very subtle smoothing for natural flow
+		for (let i = 1; i < firstPass.length - 1; i++) {
+			const prev = firstPass[i - 1];
+			const current = firstPass[i];
+			const next = firstPass[i + 1];
+
+			const smoothX = prev.x * 0.15 + current.x * 0.7 + next.x * 0.15;
+			const smoothY = prev.y * 0.15 + current.y * 0.7 + next.y * 0.15;
+
+			smoothed.push(new Vector(smoothX, smoothY));
+		}
+
+		smoothed.push(firstPass[firstPass.length - 1]);
 		return smoothed;
 	}
 
@@ -196,59 +236,69 @@ class Path extends Shape {
 
 	draw(ctx, hitRegion = false) {
 		const center = this.center ? this.center : { x: 0, y: 0 };
-		
+
 		if (this.points.length < 2) return;
 
 		ctx.save();
-		
+
 		if (!hitRegion) {
-			// Apply smooth line settings
 			ctx.lineCap = 'round';
 			ctx.lineJoin = 'round';
 		}
 
 		ctx.beginPath();
-		
+
 		if (this.points.length === 2) {
 			// Simple line for two points
 			ctx.moveTo(this.points[0].x + center.x, this.points[0].y + center.y);
 			ctx.lineTo(this.points[1].x + center.x, this.points[1].y + center.y);
 		} else {
-			// Use quadratic curves for smooth drawing
+			// Start at the first point
 			ctx.moveTo(this.points[0].x + center.x, this.points[0].y + center.y);
-			
-			for (let i = 1; i < this.points.length - 1; i++) {
+
+			// Use quadratic Bezier curves for smooth, natural strokes
+			for (let i = 0; i < this.points.length - 2; i++) {
 				const currentPoint = this.points[i];
 				const nextPoint = this.points[i + 1];
-				
-				// Calculate control point (midpoint between current and next)
-				const controlX = (currentPoint.x + nextPoint.x) / 2;
-				const controlY = (currentPoint.y + nextPoint.y) / 2;
-				
+				const afterNext = this.points[i + 2];
+
+				// Control point is the current next point
+				// End point is the midpoint between next and afterNext
+				const endX = (nextPoint.x + afterNext.x) / 2;
+				const endY = (nextPoint.y + afterNext.y) / 2;
+
 				ctx.quadraticCurveTo(
-					currentPoint.x + center.x,
-					currentPoint.y + center.y,
-					controlX + center.x,
-					controlY + center.y
+					nextPoint.x + center.x,
+					nextPoint.y + center.y,
+					endX + center.x,
+					endY + center.y
 				);
 			}
-			
-			// Draw to the last point
-			const lastPoint = this.points[this.points.length - 1];
-			ctx.lineTo(lastPoint.x + center.x, lastPoint.y + center.y);
+
+			// Handle the last two points
+			if (this.points.length > 2) {
+				const secondLast = this.points[this.points.length - 2];
+				const last = this.points[this.points.length - 1];
+
+				ctx.quadraticCurveTo(
+					secondLast.x + center.x,
+					secondLast.y + center.y,
+					last.x + center.x,
+					last.y + center.y
+				);
+			}
 		}
-		
+
 		if (hitRegion) {
 			this.applyHitRegionStyles(ctx);
 		} else {
-			// Force stroke-only rendering for paths
 			ctx.strokeStyle = this.options.strokeColor;
 			ctx.lineWidth = this.options.strokeWidth;
 			ctx.lineCap = this.options.lineCap;
 			ctx.lineJoin = this.options.lineJoin;
-			ctx.stroke(); // Only stroke, never fill
+			ctx.stroke();
 		}
-		
+
 		ctx.restore();
 	}
 }

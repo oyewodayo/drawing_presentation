@@ -14,8 +14,10 @@ class Text extends Shape {
 		this.lastClickTime = 0;
         this.clickTimeout = null;
         this.doubleClickThreshold = 300;
+		this.isPlaceholder = true;
+		this.placeholderText = "Type something";
 
-		this.setText("Enter Text Here", false);
+		this.setText(this.placeholderText, false);
 	}
 
 	
@@ -74,6 +76,11 @@ class Text extends Shape {
 	}
 
 	setText(value, save = true) {
+		// Clear placeholder flag if setting new text
+		if (value && value !== this.placeholderText) {
+			this.isPlaceholder = false;
+			this.editor.isPlaceholder = false;
+		}
 		this.editor.setText(value)
 	}
 
@@ -141,17 +148,17 @@ class Text extends Shape {
     }
 	enterEditMode(startPosition = null) {
         if (!this.editor) return;
-        
+
         // Clear any pending click timeout when entering edit mode
         if (this.clickTimeout) {
             clearTimeout(this.clickTimeout);
             this.clickTimeout = null;
         }
-        
+
         // Get click position in text coordinates
         let row = 0;
         let index = 0;
-        
+
         if (startPosition) {
             [row, index] = this.editor.getRowOfLineAndIndexAtPoint(startPosition);
         } else {
@@ -159,22 +166,22 @@ class Text extends Shape {
             index = -1;
             row = 0;
         }
-        
+
         // Enter edit mode at clicked position
         Cursor.enterEditMode(
-            viewport.editorLayer.canvas, 
-            this.editor, 
-            index, 
+            viewport.editorLayer.canvas,
+            this.editor,
+            index,
             row
         );
-        
+
         // Reset click tracking
         this.lastClickTime = 0;
         if (this.clickTimeout) {
             clearTimeout(this.clickTimeout);
             this.clickTimeout = null;
         }
-        
+
         // Record text change for undo/redo
         if (this.editor) {
             this.editor.recordTextChange();

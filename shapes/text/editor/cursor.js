@@ -120,7 +120,7 @@ class Cursor {
 				Cursor.clearCanvas();
 			}
 			tick++;
-		}, 300);
+		}, 500);
 	}
 
 	static drawCursor() {
@@ -209,6 +209,13 @@ class Cursor {
 			Cursor.startCursorBlink()
 		}
 		let editor = Cursor.currentEditor;
+
+		// Clear placeholder text on first character input
+		if (editor.isPlaceholder && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+			editor.isPlaceholder = false;
+			editor.setText("");
+		}
+
 		let lines = editor.parseText();
 		let currentIndex = Cursor.currentIndex;
 		let lineIndex = Cursor.currentLineIndex;
