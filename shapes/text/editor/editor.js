@@ -13,7 +13,7 @@ class TextEditor {
             textBaseline: "middle",
             lineJoin: "round",
             lineCap: "round",
-            dilation: 20, //for hit test
+            dilation: 20,
         };
 
         this.properties = properties
@@ -21,7 +21,9 @@ class TextEditor {
         this.undoStack = []
         this.redoStack = []
 
-        this.thinWhiteSpace = String.fromCharCode(8202); // helps in aligning text finely
+        this.thinWhiteSpace = String.fromCharCode(8202);
+        this.isPlaceholder = true;
+        this.placeholderColor = "#d3d3d3";
     }
 
     setProperties(ctx) {
@@ -277,14 +279,32 @@ class TextEditor {
             let xOffset = this.properties.xOffsets[row] || 0;
             left = center.x + xOffset;
             ctx.beginPath();
-            if (this.options.fill) {
-                ctx.fillStyle = this.options.fillColor;
-                ctx.fillText(line, left, top + fontSize / 2 + row * fontSize);
-            }
-            if (this.options.stroke) {
-                ctx.strokeStyle = this.options.strokeColor;
-                ctx.lineWidth = this.options.strokeWidth;
-                ctx.strokeText(line, left, top + fontSize / 2 + row * fontSize);
+
+            // Use placeholder color if in placeholder mode
+            if (this.isPlaceholder) {
+                if (this.options.fill) {
+                    ctx.fillStyle = this.placeholderColor;
+                    ctx.globalAlpha = 0.5;
+                    ctx.fillText(line, left, top + fontSize / 2 + row * fontSize);
+                    ctx.globalAlpha = 1;
+                }
+                if (this.options.stroke) {
+                    ctx.strokeStyle = this.placeholderColor;
+                    ctx.globalAlpha = 0.5;
+                    ctx.lineWidth = this.options.strokeWidth;
+                    ctx.strokeText(line, left, top + fontSize / 2 + row * fontSize);
+                    ctx.globalAlpha = 1;
+                }
+            } else {
+                if (this.options.fill) {
+                    ctx.fillStyle = this.options.fillColor;
+                    ctx.fillText(line, left, top + fontSize / 2 + row * fontSize);
+                }
+                if (this.options.stroke) {
+                    ctx.strokeStyle = this.options.strokeColor;
+                    ctx.lineWidth = this.options.strokeWidth;
+                    ctx.strokeText(line, left, top + fontSize / 2 + row * fontSize);
+                }
             }
             row++;
         }
