@@ -14,9 +14,39 @@ class TextTool extends ShapeTool {
 	addPointerDownListener(e) {
 		if (e.button !== 0) return;
 
+		const startPosition = new Vector(e.offsetX, e.offsetY);
+		const startPositionCtxScale = startPosition.scale(window.devicePixelRatio);
+
+		// Hit test to find if clicking on an existing text shape
+		const [r, g, b, a] = viewport.hitTestLayer.ctx.getImageData(
+			startPositionCtxScale.x,
+			startPositionCtxScale.y,
+			1,
+			1
+		).data;
+
+		const id = (r << 16) | (g << 8) | b;
+		const existingShape = viewport.getShapes().find((s) => s.id == id);
+
+		// If clicking on existing text shape, use its click handler
+		if (existingShape && existingShape.isText && existingShape.isText()) {
+			// Unselect other shapes
+			viewport.getShapes().forEach((s) => {
+				if (s !== existingShape) {
+					s.unselect(false);
+				}
+			});
+			existingShape.click();
+			return;
+		}
+
+		// Otherwise, create new text at click position
 		const mousePosition = viewport.getAdjustedPosition(Vector.fromOffsets(e));
 
-		// Create text with placeholder and immediately enter edit mode
+		// Unselect all other shapes
+		viewport.getShapes().forEach((s) => s.unselect(false));
+
+		// Create new text with placeholder
 		const text = new Text(mousePosition, propertiesPanel.getValues());
 		viewport.addShapes(text);
 
@@ -26,7 +56,6 @@ class TextTool extends ShapeTool {
 		// Enter edit mode with blinking cursor
 		setTimeout(() => {
 			if (text.editor) {
-				// Enter edit mode at the beginning of the text
 				Cursor.enterEditMode(
 					viewport.editorLayer.canvas,
 					text.editor,
@@ -34,7 +63,6 @@ class TextTool extends ShapeTool {
 					0
 				);
 
-				// Record the initial text change for undo/redo
 				text.editor.recordTextChange();
 			}
 		}, 10);
