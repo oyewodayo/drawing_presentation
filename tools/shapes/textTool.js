@@ -1,6 +1,9 @@
 class TextTool extends ShapeTool {
 	constructor() {
 		super();
+		this.lastClickedText = null;
+		this.lastClickTime = 0;
+		this.doubleClickThreshold = 300;
 	}
 
 	getShortcut() {
@@ -28,15 +31,34 @@ class TextTool extends ShapeTool {
 		const id = (r << 16) | (g << 8) | b;
 		const existingShape = viewport.getShapes().find((s) => s.id == id);
 
-		// If clicking on existing text shape, use its click handler
+		// If clicking on existing text shape
 		if (existingShape && existingShape.isText && existingShape.isText()) {
+			const currentTime = Date.now();
+
 			// Unselect other shapes
 			viewport.getShapes().forEach((s) => {
 				if (s !== existingShape) {
 					s.unselect(false);
 				}
 			});
-			existingShape.click();
+
+			// Check for double-click on the same text
+			if (
+				this.lastClickedText === existingShape &&
+				currentTime - this.lastClickTime < this.doubleClickThreshold
+			) {
+				// Double-click detected - enter edit mode
+				existingShape.enterEditMode();
+				this.lastClickedText = null;
+				this.lastClickTime = 0;
+			} else {
+				// Single click - select the text
+				if (!existingShape.selected) {
+					existingShape.select();
+				}
+				this.lastClickedText = existingShape;
+				this.lastClickTime = currentTime;
+			}
 			return;
 		}
 
@@ -45,6 +67,10 @@ class TextTool extends ShapeTool {
 
 		// Unselect all other shapes
 		viewport.getShapes().forEach((s) => s.unselect(false));
+
+		// Reset text tool state
+		this.lastClickedText = null;
+		this.lastClickTime = 0;
 
 		// Create new text with placeholder
 		const text = new Text(mousePosition, propertiesPanel.getValues());
